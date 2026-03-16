@@ -284,8 +284,10 @@ export function normalizePhoneToWaId(phone: string): string {
   // Quitar + inicial si hay
   clean = clean.replace(/^\+/, "");
 
-  // Si no empieza con el código de país configurado, añadirlo
+  // Si no empieza con el código de país configurado, añadirlo.
+  // Quitar el 0 inicial (formato local austriaco/europeo: 069..., 06...) antes de añadir el prefijo.
   if (!clean.startsWith(config.defaultCountryCode)) {
+    clean = clean.replace(/^0+/, "");
     clean = `${config.defaultCountryCode}${clean}`;
   }
 
