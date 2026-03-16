@@ -1,4 +1,4 @@
-import { Client, LocalAuth } from "whatsapp-web.js";
+import { Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import { config } from "../config/env.js";
 import { logger } from "../utils/logger.js";
@@ -208,6 +208,12 @@ class WhatsAppClient {
     await this.waitUntilReady();
     const waId = normalizePhoneToWaId(phoneNumber);
     await this.client.sendMessage(waId, message);
+  }
+
+  async sendMediaMessage(chatId: string, filePath: string, caption?: string): Promise<void> {
+    await this.waitUntilReady();
+    const media = MessageMedia.fromFilePath(filePath);
+    await this.client.sendMessage(chatId, media, { caption });
   }
 
   async fetchMessages(

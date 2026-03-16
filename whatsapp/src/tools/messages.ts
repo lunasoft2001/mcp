@@ -99,6 +99,43 @@ isMe (true si lo envié yo), type (chat, image, video, etc.).`,
     }
   );
 
+  // ─── send_media_message ────────────────────────────────────────────────────
+  server.registerTool(
+    "send_media_message",
+    {
+      title: "Enviar archivo o imagen a un chat de WhatsApp",
+      description: `Envía un archivo (VCF, imagen, PDF, etc.) a un grupo o contacto de WhatsApp.
+El archivo se lee desde una ruta absoluta del servidor y se envía como adjunto.
+
+Args:
+  - chatId: ID del destino. Para grupos termina en @g.us, para contactos en @c.us.
+            Obtener con list_whatsapp_groups o find_whatsapp_contact.
+  - filePath: ruta absoluta al archivo en el servidor (ej: /home/user/contactos.vcf)
+  - caption: texto opcional que acompaña al archivo
+
+Casos de uso típicos:
+  - Enviar VCF de contactos al grupo de Mitarbeiter para que los importen
+  - Compartir imágenes o documentos por WhatsApp desde un script
+
+Error si el archivo no existe, el destino no existe, o WhatsApp no está autenticado.`,
+      inputSchema: {
+        chatId: z.string().describe("ID del grupo o contacto destino (@g.us o @c.us)"),
+        filePath: z.string().min(1).describe("Ruta absoluta al archivo a enviar"),
+        caption: z.string().max(1024).optional().describe("Texto opcional que acompaña al archivo"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+    },
+    async ({ chatId, filePath, caption }) => {
+      try {
+        await whatsappClient.sendMediaMessage(chatId, filePath, caption);
+        return { content: [{ type: "text", text: `Archivo enviado a ${chatId}: ${filePath}` }] };
+      } catch (err) {
+        logger.error("send_media_message error", { err: String(err) });
+        return { content: [{ type: "text", text: `Error: ${String(err)}` }], isError: true };
+      }
+    }
+  );
+
   // ─── healthcheck_whatsapp ──────────────────────────────────────────────────
   server.registerTool(
     "healthcheck_whatsapp",
