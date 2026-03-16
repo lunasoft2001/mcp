@@ -46,6 +46,8 @@ Copia el fichero de ejemplo y ajusta los valores:
 cp .env.example .env
 ```
 
+> **⚠️ Lo primero que debes cambiar**: `DEFAULT_COUNTRY_CODE` — ponlo al código de tu país (ej: `43` para Austria, `49` para Alemania, `1` para USA). El servidor usa este valor para completar números locales que no llevan prefijo internacional.
+
 | Variable | Descripción | Por defecto |
 |---|---|---|
 | `DEFAULT_COUNTRY_CODE` | Prefijo de país para normalizar números sin código | `34` (España) |
