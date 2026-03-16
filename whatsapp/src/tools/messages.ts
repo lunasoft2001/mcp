@@ -15,18 +15,25 @@ export function registerMessageTools(server: McpServer): void {
       description: `Envía un mensaje de texto a un grupo de WhatsApp.
 El mensaje se envía desde el número autenticado y es visible para todos los miembros.
 
+IMPORTANTE: Usar siempre dryRun=true primero para mostrar la preview al usuario y pedir confirmación antes de enviar.
+
 Args:
   - groupId: ID del grupo (termina en @g.us). Obtener con list_whatsapp_groups.
   - message: texto del mensaje a enviar
+  - dryRun: true = solo preview sin enviar. false = enviar realmente.
 
 Error si el grupo no existe o WhatsApp no está autenticado.`,
       inputSchema: {
         groupId: z.string().endsWith("@g.us").describe("ID del grupo de destino"),
         message: z.string().min(1).max(4096).describe("Texto del mensaje"),
+        dryRun: z.boolean().optional().default(false).describe("Si true, muestra preview sin enviar. Usar siempre antes de enviar para confirmar con el usuario."),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     },
-    async ({ groupId, message }) => {
+    async ({ groupId, message, dryRun }) => {
+      if (dryRun) {
+        return { content: [{ type: "text", text: `📋 PREVIEW (no enviado) — confirma para enviar:\n\nDestino: ${groupId}\nMensaje:\n────────────────────\n${message}\n────────────────────` }] };
+      }
       try {
         await whatsappClient.sendMessage(groupId, message);
         return { content: [{ type: "text", text: `Mensaje enviado al grupo ${groupId}.` }] };
@@ -49,15 +56,22 @@ Args:
   - phoneNumber: número de teléfono. Formatos aceptados: +43600111222, 43600111222, 600111222
     El código de país por defecto se configura con DEFAULT_COUNTRY_CODE en .env.
   - message: texto del mensaje a enviar
+  - dryRun: true = solo preview sin enviar. false = enviar realmente.
+
+IMPORTANTE: Usar siempre dryRun=true primero para mostrar la preview al usuario y pedir confirmación.
 
 Error si el número no existe en WhatsApp o WhatsApp no está autenticado.`,
       inputSchema: {
         phoneNumber: z.string().min(6).describe("Número de teléfono del destinatario"),
         message: z.string().min(1).max(4096).describe("Texto del mensaje"),
+        dryRun: z.boolean().optional().default(false).describe("Si true, muestra preview sin enviar. Usar siempre antes de enviar para confirmar con el usuario."),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     },
-    async ({ phoneNumber, message }) => {
+    async ({ phoneNumber, message, dryRun }) => {
+      if (dryRun) {
+        return { content: [{ type: "text", text: `📋 PREVIEW (no enviado) — confirma para enviar:\n\nDestinatario: ${phoneNumber}\nMensaje:\n────────────────────\n${message}\n────────────────────` }] };
+      }
       try {
         await whatsappClient.sendDirectMessage(phoneNumber, message);
         return { content: [{ type: "text", text: `Mensaje enviado a ${phoneNumber}.` }] };
@@ -122,10 +136,14 @@ Error si el archivo no existe, el destino no existe, o WhatsApp no está autenti
         chatId: z.string().describe("ID del grupo o contacto destino (@g.us o @c.us)"),
         filePath: z.string().min(1).describe("Ruta absoluta al archivo a enviar"),
         caption: z.string().max(1024).optional().describe("Texto opcional que acompaña al archivo"),
+        dryRun: z.boolean().optional().default(false).describe("Si true, muestra preview sin enviar. Usar siempre antes de enviar para confirmar con el usuario."),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     },
-    async ({ chatId, filePath, caption }) => {
+    async ({ chatId, filePath, caption, dryRun }) => {
+      if (dryRun) {
+        return { content: [{ type: "text", text: `📋 PREVIEW (no enviado) — confirma para enviar:\n\nDestino: ${chatId}\nArchivo: ${filePath}${caption ? `\nCaption: ${caption}` : ""}` }] };
+      }
       try {
         await whatsappClient.sendMediaMessage(chatId, filePath, caption);
         return { content: [{ type: "text", text: `Archivo enviado a ${chatId}: ${filePath}` }] };
