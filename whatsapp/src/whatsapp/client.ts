@@ -213,7 +213,10 @@ class WhatsAppClient {
   async sendMediaMessage(chatId: string, filePath: string, caption?: string): Promise<void> {
     await this.waitUntilReady();
     const media = MessageMedia.fromFilePath(filePath);
-    await this.client.sendMessage(chatId, media, { caption });
+    // sendMediaAsDocument=true es necesario para PDFs y archivos no-imagen;
+    // sin este flag whatsapp-web.js falla al enviar documentos.
+    const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(filePath);
+    await this.client.sendMessage(chatId, media, { caption, sendMediaAsDocument: !isImage });
   }
 
   async fetchMessages(
