@@ -8,9 +8,10 @@ Cada servidor está en su propia carpeta con su `package.json`, `README.md` y do
 
 ## Servidores disponibles
 
-| Servidor | Descripción | Estado |
-|---|---|---|
-| [whatsapp](./whatsapp/) | Administra grupos y contactos de WhatsApp | ✅ Publicado |
+| Servidor | Descripción | Tools | Estado |
+|---|---|---|---|
+| [whatsapp](./whatsapp/) | Envía mensajes directos y de grupo, gestiona participantes, obtiene historial de chat y soporta envío de archivos multimedia (imágenes, PDFs, VCF). Autenticación via QR con sesión persistente. | `send_direct_message` `send_group_message` `send_media_message` `get_chat_messages` `find_whatsapp_contact` `list_whatsapp_groups` `find_whatsapp_group` `list_group_members` `add_group_participant` `remove_group_participant` `get_group_invite_link` `healthcheck_whatsapp` | ✅ Publicado |
+| [linkedin](./linkedin/) | Publica posts de texto, artículos con URL y vídeos en LinkedIn. Incluye flujo OAuth 2.0 completo con servidor local de callback. | `linkedin_get_my_profile` `linkedin_create_text_post` `linkedin_create_article_post` `linkedin_create_video_post` | ✅ Publicado |
 
 ---
 
