@@ -44,15 +44,24 @@ Notas:
           .max(3000, "El texto no puede superar los 3000 caracteres")
           .describe("Contenido del post de LinkedIn"),
         visibility: VisibilitySchema,
+        dryRun: z.boolean()
+          .default(true)
+          .describe("Si true (por defecto), muestra un preview sin publicar. Usa dryRun: false para publicar realmente."),
       },
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         idempotentHint: false,
         openWorldHint: true,
       },
     },
-    async ({ text, visibility }) => {
+    async ({ text, visibility, dryRun }) => {
+      if (dryRun) {
+        return {
+          content: [{ type: "text", text: `📋 **Preview del post** (no publicado)\n\n${text}\n\n**Visibilidad:** ${visibility ?? "PUBLIC"}\n\n⚠️ Para publicar realmente, llama de nuevo con \`dryRun: false\`.` }],
+          structuredContent: { success: false, dryRun: true, preview: text },
+        };
+      }
       try {
         const profile = await getMyProfile();
         const author = buildPersonUrn(profile.sub);
@@ -143,15 +152,24 @@ Ejemplos de uso:
           .optional()
           .describe("Descripción breve del artículo (opcional)"),
         visibility: VisibilitySchema,
+        dryRun: z.boolean()
+          .default(true)
+          .describe("Si true (por defecto), muestra un preview sin publicar. Usa dryRun: false para publicar realmente."),
       },
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         idempotentHint: false,
         openWorldHint: true,
       },
     },
-    async ({ text, url, title, description, visibility }) => {
+    async ({ text, url, title, description, visibility, dryRun }) => {
+      if (dryRun) {
+        return {
+          content: [{ type: "text", text: `📋 **Preview del post** (no publicado)\n\n${text}\n\n**URL compartida:** ${url}\n**Visibilidad:** ${visibility ?? "PUBLIC"}\n\n⚠️ Para publicar realmente, llama de nuevo con \`dryRun: false\`.` }],
+          structuredContent: { success: false, dryRun: true, preview: text, url },
+        };
+      }
       try {
         const profile = await getMyProfile();
         const author = buildPersonUrn(profile.sub);
@@ -249,15 +267,24 @@ Ejemplos de uso:
           .optional()
           .describe("Título descriptivo del vídeo (opcional)"),
         visibility: VisibilitySchema,
+        dryRun: z.boolean()
+          .default(true)
+          .describe("Si true (por defecto), muestra un preview sin publicar. Usa dryRun: false para publicar realmente."),
       },
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         idempotentHint: false,
         openWorldHint: true,
       },
     },
-    async ({ filePath, text, title, visibility }) => {
+    async ({ filePath, text, title, visibility, dryRun }) => {
+      if (dryRun) {
+        return {
+          content: [{ type: "text", text: `📋 **Preview del post con vídeo** (no publicado)\n\n${text}\n\n**Vídeo:** ${filePath}\n**Visibilidad:** ${visibility ?? "PUBLIC"}\n\n⚠️ Para publicar realmente, llama de nuevo con \`dryRun: false\`.` }],
+          structuredContent: { success: false, dryRun: true, preview: text, filePath },
+        };
+      }
       try {
         const profile = await getMyProfile();
         const author = buildPersonUrn(profile.sub);

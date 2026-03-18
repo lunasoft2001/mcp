@@ -1,4 +1,5 @@
 import { readFileSync } from "fs";
+import { resolve } from "path";
 import { LINKEDIN_API_BASE, LINKEDIN_USERINFO_URL } from "../constants.js";
 import type { LinkedInProfile, LinkedInApiError, VideoUploadRegisterResult } from "../types.js";
 
@@ -106,7 +107,12 @@ export async function registerVideoUpload(personUrn: string): Promise<VideoUploa
 
 // PUT al uploadUrl — Sube el binario del vídeo
 export async function uploadVideoFile(uploadUrl: string, filePath: string): Promise<void> {
-  const fileBuffer = readFileSync(filePath);
+  // Validar que la ruta es absoluta y no contiene traversal
+  const absPath = resolve(filePath);
+  if (filePath.includes("..")) {
+    throw new Error("filePath no puede contener '..' (path traversal no permitido).");
+  }
+  const fileBuffer = readFileSync(absPath);
 
   const response = await fetch(uploadUrl, {
     method: "PUT",

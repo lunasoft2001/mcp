@@ -12,6 +12,7 @@
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "keywords": ["mcp", "linkedin", "model-context-protocol", "agent-skills"],
+  "author": "lunasoft2001 <https://github.com/lunasoft2001>",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
