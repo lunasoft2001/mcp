@@ -75,6 +75,27 @@ export function buildPostUrl(postUrn: string): string {
   return `https://www.linkedin.com/feed/update/${postUrn}/`;
 }
 
+// POST /v2/socialActions/{postUrn}/comments — Añade un comentario a un post
+export async function addComment(postUrn: string, personUrn: string, text: string): Promise<string> {
+  const encodedUrn = encodeURIComponent(postUrn);
+  const response = await fetch(`${LINKEDIN_API_BASE}/socialActions/${encodedUrn}/comments`, {
+    method: "POST",
+    headers: buildHeaders(),
+    body: JSON.stringify({
+      actor: personUrn,
+      message: { text },
+    }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.json().catch(() => ({}));
+    throw new Error(formatApiError(response.status, errBody));
+  }
+
+  const data = await response.json() as { id?: string };
+  return data.id ?? "";
+}
+
 // POST /v2/assets?action=registerUpload — Registra un vídeo para subida
 export async function registerVideoUpload(personUrn: string): Promise<VideoUploadRegisterResult> {
   const body = {
