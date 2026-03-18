@@ -28,5 +28,6 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "author": "lunasoft2001 <https://github.com/lunasoft2001>",
   "license": "MIT"
 }

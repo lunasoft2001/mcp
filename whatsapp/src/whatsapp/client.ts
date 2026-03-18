@@ -212,6 +212,13 @@ class WhatsAppClient {
 
   async sendMediaMessage(chatId: string, filePath: string, caption?: string): Promise<void> {
     await this.waitUntilReady();
+    // Validar path: no permitir traversal ni rutas claramente peligrosas
+    if (filePath.includes("..")) {
+      throw new Error("filePath no puede contener '..' (path traversal no permitido).");
+    }
+    if (!filePath.startsWith("/")) {
+      throw new Error("filePath debe ser una ruta absoluta.");
+    }
     const media = MessageMedia.fromFilePath(filePath);
     // sendMediaAsDocument=true es necesario para PDFs y archivos no-imagen;
     // sin este flag whatsapp-web.js falla al enviar documentos.

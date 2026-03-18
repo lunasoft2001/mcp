@@ -115,10 +115,14 @@ Error si no eres admin, el grupo no existe o WhatsApp no está autenticado.`,
       inputSchema: {
         groupId: z.string().endsWith("@g.us").describe("ID del grupo"),
         phoneNumber: z.string().min(6).describe("Número de teléfono del nuevo participante"),
+        dryRun: z.boolean().optional().default(true).describe("Si true (por defecto), muestra preview sin ejecutar. Usa dryRun: false para añadir realmente al participante."),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     },
-    async ({ groupId, phoneNumber }) => {
+    async ({ groupId, phoneNumber, dryRun }) => {
+      if (dryRun) {
+        return { content: [{ type: "text", text: `📋 PREVIEW (no ejecutado) — confirma para añadir:\n\nGrupo: ${groupId}\nParticipante: ${phoneNumber}\n\n⚠️ Llama de nuevo con \`dryRun: false\` para añadir realmente.` }] };
+      }
       try {
         const result = await whatsappClient.addParticipant(groupId, phoneNumber);
         return { content: [{ type: "text", text: result }] };
@@ -146,10 +150,14 @@ Error si no eres admin, el grupo no existe o WhatsApp no está autenticado.`,
       inputSchema: {
         groupId: z.string().endsWith("@g.us").describe("ID del grupo"),
         phoneNumber: z.string().min(6).describe("Número de teléfono del participante a eliminar"),
+        dryRun: z.boolean().optional().default(true).describe("Si true (por defecto), muestra preview sin ejecutar. Usa dryRun: false para eliminar realmente al participante."),
       },
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false },
     },
-    async ({ groupId, phoneNumber }) => {
+    async ({ groupId, phoneNumber, dryRun }) => {
+      if (dryRun) {
+        return { content: [{ type: "text", text: `📋 PREVIEW (no ejecutado) — confirma para eliminar:\n\nGrupo: ${groupId}\nParticipante a eliminar: ${phoneNumber}\n\n⚠️ OPERACIÓN DESTRUCTIVA — el participante perderá acceso al grupo inmediatamente.\nLlama de nuevo con \`dryRun: false\` para ejecutar.` }] };
+      }
       try {
         const result = await whatsappClient.removeParticipant(groupId, phoneNumber);
         return { content: [{ type: "text", text: result }] };
