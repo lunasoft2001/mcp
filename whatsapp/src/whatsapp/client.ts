@@ -294,11 +294,15 @@ export function normalizePhoneToWaId(phone: string): string {
   // Quitar + inicial si hay
   clean = clean.replace(/^\+/, "");
 
-  // Si no empieza con el código de país configurado, añadirlo.
-  // Quitar el 0 inicial (formato local austriaco/europeo: 069..., 06...) antes de añadir el prefijo.
-  if (!clean.startsWith(config.defaultCountryCode)) {
+  // Reglas de normalización:
+  // 1. Si empieza con 0 → número local (p.ej. 0699... austria) → quitar 0 y añadir código de país
+  // 2. Si ya empieza con el código de país configurado → no tocar
+  // 3. Si no empieza por 0 ni por el código de país → asumir que ya lleva otro código de país (ej. 34... españa)
+  if (clean.startsWith("0")) {
     clean = clean.replace(/^0+/, "");
     clean = `${config.defaultCountryCode}${clean}`;
+  } else if (!clean.startsWith(config.defaultCountryCode)) {
+    // Ya tiene código de país propio (ej: 34, 1, 49...) — no modificar
   }
 
   return `${clean}@c.us`;
